@@ -31,3 +31,28 @@ export function recomputeBalances(group, expenses) {
 
   return { balances, totalAmount: Math.round(total * 100) / 100 };
 }
+export function balancesFromExpenses(members, expenses) {
+  const balances = {};
+  for (const m of members) balances[m] = 0;
+
+  for (const ex of expenses) {
+    const amount = Number(ex.amount || 0);
+    const splitPeople = ex.splitBetween || [];
+    if (!splitPeople.length) continue;
+
+    const share = amount / splitPeople.length;
+
+    balances[ex.paidBy] = (balances[ex.paidBy] || 0) + amount;
+
+    for (const p of splitPeople) {
+      balances[p] = (balances[p] || 0) - share;
+    }
+  }
+
+  for (const k of Object.keys(balances)) {
+    balances[k] = Math.round(balances[k] * 100) / 100;
+  }
+
+  return balances;
+}
+

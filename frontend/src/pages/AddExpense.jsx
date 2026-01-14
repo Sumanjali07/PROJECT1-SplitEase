@@ -8,7 +8,6 @@ import Toast from "../components/Toast.jsx";
 export default function AddExpense() {
   const { groupId } = useParams();
   const navigate = useNavigate();
-
   const [group, setGroup] = useState(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -17,6 +16,7 @@ export default function AddExpense() {
   const [amount, setAmount] = useState("");
   const [paidBy, setPaidBy] = useState("");
   const [splitBetween, setSplitBetween] = useState([]);
+  const [category, setCategory] = useState("Travel");
 
   const [toast, setToast] = useState({ message: "", type: "info" });
 
@@ -62,8 +62,10 @@ export default function AddExpense() {
         title: title.trim(),
         amount: amt,
         paidBy,
-        splitBetween
+        splitBetween,
+        category
       });
+
       navigate(`/group/${groupId}`);
     } catch (err) {
       setToast({ message: err.message, type: "error" });
@@ -115,7 +117,20 @@ export default function AddExpense() {
               ))}
             </select>
           </label>
-
+          <label className="label">
+            Category
+            <select
+              className="input"
+              value={category}
+              onChange={(e) => setCategory(e.target.value)}
+            >
+              <option value="Travel">Travel</option>
+              <option value="Food">Food</option>
+              <option value="Hotel">Hotel</option>
+              <option value="Shopping">Shopping</option>
+              <option value="General">General</option>
+            </select>
+          </label>
           <div className="label">
             Split Between
             <div className="chips">

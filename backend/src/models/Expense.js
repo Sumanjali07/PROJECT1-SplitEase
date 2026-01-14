@@ -6,7 +6,8 @@ const ExpenseSchema = new mongoose.Schema(
     title: { type: String, required: true, trim: true },
     amount: { type: Number, required: true },
     paidBy: { type: String, required: true },
-    splitBetween: { type: [String], required: true }
+    splitBetween: { type: [String], required: true },
+    category: { type: String, default: "General" }
   },
   { timestamps: true }
 );

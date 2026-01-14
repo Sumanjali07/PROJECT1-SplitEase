@@ -1,6 +1,8 @@
+import Expense from "../models/Expense.js";
+import { balancesFromExpenses } from "../utils/calculate.js";
+import { getSettlements } from "../utils/settle.js";
 import express from "express";
 import Group from "../models/Group.js";
-import Expense from "../models/Expense.js";
 import { recomputeBalances } from "../utils/calculate.js";
 
 const router = express.Router();
@@ -95,6 +97,51 @@ router.delete("/:groupId", async (req, res, next) => {
     await Group.deleteOne({ _id: group._id });
 
     return res.json({ message: "Group deleted." });
+  } catch (e) {
+    next(e);
+  }
+});
+// GET settle suggestions: who pays whom
+router.get("/:groupId/settlements", async (req, res, next) => {
+  try {
+    const group = await Group.findById(req.params.groupId);
+    if (!group) return res.status(404).json({ message: "Group not found." });
+
+    const settlements = getSettlements(group.balances);
+    res.json(settlements);
+  } catch (e) {
+    next(e);
+  }
+});
+// GET category-wise settlements
+// GET category-wise settlements
+router.get("/:groupId/settlements-by-category", async (req, res, next) => {
+  try {
+    const group = await Group.findById(req.params.groupId);
+    if (!group) return res.status(404).json({ message: "Group not found." });
+
+    const expenses = await Expense.find({ groupId: group._id });
+
+    const byCat = {};
+    for (const ex of expenses) {
+      const cat = ex.category || "General";
+      if (!byCat[cat]) byCat[cat] = [];
+      byCat[cat].push(ex);
+    }
+
+    const result = {};
+    for (const [cat, list] of Object.entries(byCat)) {
+      const balances = balancesFromExpenses(group.members, list);
+      const settlements = getSettlements(balances);
+      const total =
+        Math.round(
+          list.reduce((s, e) => s + Number(e.amount || 0), 0) * 100
+        ) / 100;
+
+      result[cat] = { total, balances, settlements };
+    }
+
+    return res.json(result);
   } catch (e) {
     next(e);
   }

@@ -8,27 +8,48 @@ import Toast from "../components/Toast.jsx";
 export default function GroupDetails() {
   const { groupId } = useParams();
   const navigate = useNavigate();
-
+  const [settlements, setSettlements] = useState([]);
   const [group, setGroup] = useState(null);
   const [expenses, setExpenses] = useState([]);
   const [tab, setTab] = useState("expenses"); // expenses | settle
   const [loading, setLoading] = useState(true);
   const [toast, setToast] = useState({ message: "", type: "info" });
   const [settling, setSettling] = useState(false);
+  const [catData, setCatData] = useState({});
 
   async function load() {
+  try {
+    setLoading(true);
+
+    const g = await api.getGroup(groupId);
+    const ex = await api.getExpenses(groupId);
+
+    setGroup(g);
+    setExpenses(ex);
+
+    // settlements (optional)
     try {
-      setLoading(true);
-      const g = await api.getGroup(groupId);
-      const ex = await api.getExpenses(groupId);
-      setGroup(g);
-      setExpenses(ex);
-    } catch (e) {
-      setToast({ message: e.message, type: "error" });
-    } finally {
-      setLoading(false);
+      const s = await api.getSettlements(groupId);
+      setSettlements(s);
+    } catch {
+      setSettlements([]);
     }
+
+    // category settlements (optional)
+    try {
+      const cat = await api.getSettlementsByCategory(groupId);
+      setCatData(cat);
+    } catch {
+      setCatData({});
+    }
+  } catch (e) {
+    setToast({ message: e.message, type: "error" });
+    setGroup(null);
+  } finally {
+    setLoading(false);
   }
+}
+
 
   useEffect(() => {
     load();
@@ -191,6 +212,48 @@ export default function GroupDetails() {
                   </div>
                 ))}
               </div>
+              <div className="settle-title" style={{ marginTop: 12 }}>Who pays whom</div>
+              {settlements.length === 0 ? (
+                <div className="muted">All settled ✅</div>
+              ) : (
+                <div className="list" style={{ marginTop: 10 }}>
+                  {settlements.map((x, idx) => (
+                    <div key={idx} className="list-item">
+                      <div className="list-title">
+                        {x.from} → pays {x.to}
+                      </div>
+                      <div className="amount">₹{Number(x.amount).toFixed(2)}</div>
+                    </div>
+                  ))}
+                </div>
+                )}
+                <div className="settle-title" style={{ marginTop: 16 }}>Category wise settle up</div>
+                {Object.keys(catData || {}).length === 0 ? (
+                  <div className="muted">No category data yet.</div>
+                ) : (
+                  <div className="stack" style={{ marginTop: 10 }}>
+                    {Object.entries(catData).map(([cat, info]) => (
+                      <div key={cat} className="settle-box">
+                        <div className="settle-title">{cat} • Total ₹{Number(info.total).toFixed(2)}</div>
+                
+                        {info.settlements?.length === 0 ? (
+                          <div className="muted">Already settled ✅</div>
+                        ) : (
+                          <div className="list" style={{ marginTop: 10 }}>
+                            {info.settlements.map((x, idx) => (
+                              <div key={idx} className="list-item">
+                                <div className="list-title">
+                                  {x.from} → pays {x.to}
+                                </div>
+                                <div className="amount">₹{Number(x.amount).toFixed(2)}</div>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
 
               <button
                 className="btn primary"

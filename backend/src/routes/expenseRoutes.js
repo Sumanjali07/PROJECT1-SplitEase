@@ -40,8 +40,7 @@ router.delete("/:groupId", async (req, res, next) => {
 // POST create expense
 router.post("/:groupId/expenses", async (req, res, next) => {
   try {
-    const { title, amount, paidBy, splitBetween } = req.body;
-
+    const { title, amount, paidBy, splitBetween, category } = req.body;
     const group = await Group.findById(req.params.groupId);
     if (!group) {
       res.status(404);
@@ -71,14 +70,15 @@ router.post("/:groupId/expenses", async (req, res, next) => {
         throw new Error(`Invalid split member: ${p}`);
       }
     }
-
     const expense = await Expense.create({
       groupId: group._id,
       title: title.trim(),
       amount: amt,
       paidBy,
-      splitBetween
+      splitBetween,
+      category: category || "General"
     });
+
 
     // Recompute balances after creating expense
     const allExpenses = await Expense.find({ groupId: group._id });

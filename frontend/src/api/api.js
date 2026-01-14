@@ -48,6 +48,9 @@ export const api = {
     request(`/api/groups/${groupId}/expenses/${expenseId}`, {
       method: "DELETE"
     }),
+  getSettlements: (groupId) => request(`/api/groups/${groupId}/settlements`),
+  getSettlementsByCategory: (groupId) =>
+  request(`/api/groups/${groupId}/settlements-by-category`),
   deleteGroup: (groupId) =>
     request(`/api/groups/${groupId}`, { method: "DELETE" })
 };
