@@ -6,22 +6,25 @@ import { createApp } from "./app.js";
 
 const PORT = process.env.PORT || 5000;
 
-async function start() {
-  await connectDB(process.env.MONGO_URI);
+// ✅ create app at top-level so Vercel can use it
+const app = createApp();
 
-  const app = createApp();
-  app.get("/api/health", (req, res) => res.json({ ok: true }));
+// ✅ health route
+app.get("/api/health", (req, res) => res.json({ ok: true }));
 
-
-  if (process.env.VERCEL !== "1") {
-  app.listen(PORT, "0.0.0.0", () => {
-    console.log(`✅ Backend running on http://localhost:${PORT}`);
+// ✅ connect DB once (works for Vercel + local)
+connectDB(process.env.MONGO_URI)
+  .then(() => {
+    // only listen locally
+    if (process.env.VERCEL !== "1") {
+      app.listen(PORT, "0.0.0.0", () => {
+        console.log(`✅ Backend running on http://localhost:${PORT}`);
+      });
+    }
+  })
+  .catch((err) => {
+    console.error("❌ Server failed:", err);
   });
-}
-}
 
-start().catch((err) => {
-  console.error("❌ Server failed:", err);
-  process.exit(1);
-});
+// ✅ Vercel will use exported app as handler
 export default app;
