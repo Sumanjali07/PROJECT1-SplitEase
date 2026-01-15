@@ -1,10 +1,5 @@
 {
-  "functions": {
-    "backend/src/server.js": {
-      "runtime": "nodejs20.x"
-    }
-  },
-  "routes": [
-    { "src": "/api/(.*)", "dest": "backend/src/server.js" }
+  "rewrites": [
+    { "source": "/api/(.*)", "destination": "/backend/src/server.js" }
   ]
 }
