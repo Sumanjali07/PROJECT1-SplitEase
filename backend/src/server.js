@@ -10,6 +10,8 @@ async function start() {
   await connectDB(process.env.MONGO_URI);
 
   const app = createApp();
+  app.get("/api/health", (req, res) => res.json({ ok: true }));
+
 
   if (process.env.VERCEL !== "1") {
   app.listen(PORT, "0.0.0.0", () => {
