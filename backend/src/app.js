@@ -7,17 +7,13 @@ import { notFound, errorHandler } from "./middleware/errorHandler.js";
 export function createApp() {
   const app = express();
 
-  app.use(cors({
-    origin: "https://jovial-shortbread-028ee6.netlify.app",
-    credentials: true
-  }));
+  // ✅ TEMP FIX (allow all origins)
+  app.use(cors());
 
   app.use(express.json());
 
-  // ✅ health route
   app.get("/health", (req, res) => res.json({ ok: true }));
 
-  // ✅ routes
   app.use("/api/groups", groupRoutes);
   app.use("/api/groups", expenseRoutes);
 
