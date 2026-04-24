@@ -7,17 +7,18 @@ import { notFound, errorHandler } from "./middleware/errorHandler.js";
 export function createApp() {
   const app = express();
 
+  // ✅ CORS (ONLY ONCE)
+  app.use(cors({
+    origin: process.env.CLIENT_ORIGIN,
+    credentials: true
+  }));
+
   app.use(express.json());
 
-  app.use(
-    cors({
-      origin: process.env.CLIENT_ORIGIN || "http://localhost:5173",
-      credentials: false
-    })
-  );
-
+  // ✅ health route
   app.get("/health", (req, res) => res.json({ ok: true }));
 
+  // ✅ routes
   app.use("/api/groups", groupRoutes);
   app.use("/api/groups", expenseRoutes);
 
