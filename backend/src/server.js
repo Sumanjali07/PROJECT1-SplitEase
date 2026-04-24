@@ -10,7 +10,7 @@ const PORT = process.env.PORT || 5000;
 const app = createApp();
 
 // ✅ health route
-app.get("/api/health", (req, res) => res.json({ ok: true }));
+//app.get("/api/health", (req, res) => res.json({ ok: true }));
 
 // ✅ connect DB once (works for Vercel + local)
 connectDB(process.env.MONGO_URI)
