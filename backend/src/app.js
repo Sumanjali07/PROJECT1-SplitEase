@@ -7,9 +7,8 @@ import { notFound, errorHandler } from "./middleware/errorHandler.js";
 export function createApp() {
   const app = express();
 
-  // ✅ CORS (ONLY ONCE)
   app.use(cors({
-    origin: process.env.CLIENT_ORIGIN,
+    origin: "https://jovial-shortbread-028ee6.netlify.app",
     credentials: true
   }));
 
