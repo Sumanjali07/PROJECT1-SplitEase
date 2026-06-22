@@ -3,6 +3,8 @@ import cors from "cors";
 import groupRoutes from "./routes/groupRoutes.js";
 import expenseRoutes from "./routes/expenseRoutes.js";
 import { notFound, errorHandler } from "./middleware/errorHandler.js";
+import authRoutes from "./routes/authRoutes.js";
+
 
 export function createApp() {
   const app = express();
@@ -13,6 +15,7 @@ export function createApp() {
   app.use(express.json());
 
   app.get("/health", (req, res) => res.json({ ok: true }));
+  app.use("/api/auth", authRoutes);
 
   app.use("/api/groups", groupRoutes);
   app.use("/api/groups", expenseRoutes);
